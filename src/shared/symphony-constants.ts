@@ -66,13 +66,18 @@ export const SYMPHONY_CATEGORIES: Record<string, { label: string; emoji: string 
 };
 
 // Document path regex patterns (to extract from issue body)
+// Note: These patterns are designed to prevent ReDoS attacks by:
+// 1. Using bounded repetition where possible
+// 2. Avoiding nested quantifiers
+// 3. Limiting whitespace matching
 export const DOCUMENT_PATH_PATTERNS = [
   // Markdown list items: - `path/to/doc.md` or - path/to/doc.md
-  /^[\s]*[-*]\s*`?([^\s`]+\.md)`?\s*$/gm,
+  // Limited leading whitespace to 20 chars to prevent ReDoS
+  /^[ \t]{0,20}[-*][ \t]{1,4}`?([^\s`]+\.md)`?[ \t]*$/gm,
   // Numbered list: 1. `path/to/doc.md`
-  /^[\s]*\d+\.\s*`?([^\s`]+\.md)`?\s*$/gm,
+  /^[ \t]{0,20}\d{1,4}\.[ \t]{1,4}`?([^\s`]+\.md)`?[ \t]*$/gm,
   // Bare paths on their own line
-  /^[\s]*([a-zA-Z0-9_\-./]+\.md)\s*$/gm,
+  /^[ \t]{0,20}([a-zA-Z0-9_\-./]{1,200}\.md)[ \t]*$/gm,
 ];
 
 // Default stats for new users
